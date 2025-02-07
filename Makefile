@@ -9,10 +9,20 @@ clean:
 	rm -f ./tempfile*
 	rm -f ./cover.html cover.out coverage.txt
 
+.PHONY: lnt
+lnt:
+# to install it:
+# go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@tput bold setaf 1;golangci-lint version;tput sgr0
+# golangci-lint run -v --enable-all --disable gochecknoglobals --disable paralleltest --disable exhaustivestruct --disable depguard --disable wsl
+	golangci-lint run -v --config=golangci.yml
+
+
 .PHONY: fmt
 fmt:
 # to install it:
 # go install mvdan.cc/gofumpt@latest
+	@tput bold setaf 1;echo "gofumpt version:"; gofumpt --version;tput sgr0
 	gofumpt -l -w .
 	@tput bold setaf 4;echo "gofumpt done";tput sgr0
 
