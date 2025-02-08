@@ -1,0 +1,36 @@
+name: codecov-go
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  build:
+    name: codecov
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.23.6'
+
+    - name: Install dependencies
+      run: go get -u ./...
+
+    - name: Build Legion Bot
+      run: go build -o ./cmd/legionbot/legionbot ./cmd/legionbot/*.go
+
+    - name: Test
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./... -coverpkg=./...
+      
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      env: 
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
