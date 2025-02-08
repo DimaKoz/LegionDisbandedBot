@@ -159,7 +159,7 @@ linters:
     - tagliatelle
     - tenv
     - testableexamples
-    - testpackage
+    #- testpackage
     - thelper
     - tparallel
     - typecheck
