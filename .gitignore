@@ -13,13 +13,15 @@ temp*
 
 # Binaries
 cmd/
+!cmd/legionbot/
+!cmd/legionbot/main.go
 
 
 # Dependency directories (remove the comment below to include it)
 vendor/
 
 # IDEs directories
-.idea
+**.idea/**
 .vscode
 *.run
 
