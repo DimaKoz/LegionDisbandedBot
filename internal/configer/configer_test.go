@@ -1,7 +1,9 @@
 package configer
 
 import (
+	"errors"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"testing"
@@ -12,7 +14,43 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestLoadMonitorConfig(t *testing.T) {
+var (
+	errAny                    = errors.New("any error")
+	errWantTestProcessEnvMock = errors.New("cannot process ENV variables: any error")
+)
+
+func TestProcessEnvMock(t *testing.T) {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	flag.CommandLine.SetOutput(io.Discard)
+
+	osArgOrig := os.Args
+	os.Args = make([]string, 0)
+	os.Args = append(os.Args, osArgOrig[0])
+
+	t.Cleanup(func() {
+		os.Args = osArgOrig
+	})
+	origProcessEnv := processEnv
+	processEnv = func(_ *config.LegionBotConfig) error {
+		return errAny
+	}
+	t.Cleanup(func() { processEnv = origProcessEnv })
+	_, gotErr := LoadLegionBotConfig()
+	wantErr := errWantTestProcessEnvMock
+	assert.NotNil(t, gotErr)
+	assert.Equal(t, wantErr.Error(), gotErr.Error(), "Configs - got error: %v, want: %v", gotErr, wantErr)
+}
+
+var errTestProcessEnvError = errors.New("env: expected a pointer to a Struct")
+
+func TestProcessEnvError(t *testing.T) {
+	wantErr := fmt.Errorf("failed to parse an environment, error: %w", errTestProcessEnvError)
+	gotErr := processEnv(nil)
+
+	assert.Equal(t, wantErr, gotErr, "Configs - got error: %v, want: %v", gotErr, wantErr)
+}
+
+func TestLoadLegionBotConfig(t *testing.T) {
 	type argTestConfig struct {
 		flagT string
 		flagD string
@@ -71,5 +109,70 @@ func TestLoadMonitorConfig(t *testing.T) {
 				assert.NotNil(t, got)
 			}
 		})
+	}
+}
+
+func TestConfigEnv(t *testing.T) {
+	type argTestConfig struct {
+		flagT    string
+		flagD    string
+		flagU    string
+		envFlagT string
+		envFlagD string
+		envFlagU string
+	}
+
+	tests := []struct {
+		name string
+		args argTestConfig
+		want *config.LegionBotConfig
+	}{
+		{
+			name: "OnlyEnv",
+			args: argTestConfig{flagT: "", flagD: "", flagU: "", envFlagT: "1", envFlagD: "2", envFlagU: "3"},
+			want: &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathAllowedTelegramUsersList: "3"},
+		},
+		{
+			name: "Env+CommandLine",
+			args: argTestConfig{flagT: "11", flagD: "22", flagU: "33", envFlagT: "1", envFlagD: "2", envFlagU: "3"},
+			want: &config.LegionBotConfig{TelegramToken: "11", DiscordToken: "22", PathAllowedTelegramUsersList: "33"},
+		},
+	}
+	for _, tCase := range tests {
+		t.Run(tCase.name, func(t *testing.T) {
+			envArgsInitConfig(t, "LEGION_BOT_TELEGRAM_TOKEN", tCase.args.envFlagT)
+			envArgsInitConfig(t, "LEGION_BOT_DISCORD_TOKEN", tCase.args.envFlagD)
+			envArgsInitConfig(t, "LEGION_BOT_ALLOWED_USERS", tCase.args.envFlagU)
+			osArgOrig := os.Args
+			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+			flag.CommandLine.SetOutput(io.Discard)
+			os.Args = make([]string, 0)
+			os.Args = append(os.Args, osArgOrig[0])
+			if tCase.args.envFlagT != "" {
+				os.Args = utils.AppendArgs(os.Args, "-"+flagNameTelegramToken, tCase.args.flagT)
+			}
+			if tCase.args.envFlagD != "" {
+				os.Args = utils.AppendArgs(os.Args, "-"+flagNameDiscordToken, tCase.args.flagD)
+			}
+			if tCase.args.envFlagU != "" {
+				os.Args = utils.AppendArgs(os.Args, "-"+flagNamePathAllowedTelegramUsersList, tCase.args.flagU)
+			}
+
+			t.Cleanup(func() { os.Args = osArgOrig })
+			got, err := LoadLegionBotConfig()
+
+			require.NoErrorf(t, err, "Configs - got error: %v", err)
+			assert.NotNil(t, got)
+		})
+	}
+}
+
+func envArgsInitConfig(t *testing.T, key string, value string) {
+	t.Helper()
+	if value != "" {
+		origValue := os.Getenv(key)
+		err := os.Setenv(key, value)
+		assert.NoError(t, err)
+		t.Cleanup(func() { _ = os.Setenv(key, origValue) })
 	}
 }
