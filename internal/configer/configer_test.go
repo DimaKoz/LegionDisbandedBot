@@ -50,13 +50,18 @@ func TestProcessEnvError(t *testing.T) {
 	assert.Equal(t, wantErr, gotErr, "Configs - got error: %v, want: %v", gotErr, wantErr)
 }
 
-func TestLoadLegionBotConfig(t *testing.T) {
-	type argTestConfig struct {
-		flagT string
-		flagD string
-		flagU string
-	}
+type argTestConfig struct {
+	flagT    string
+	flagD    string
+	flagU    string
+	flagM    string
+	envFlagT string
+	envFlagD string
+	envFlagU string
+	envFlagM string
+}
 
+func TestLoadLegionBotConfig(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    argTestConfig
@@ -65,25 +70,31 @@ func TestLoadLegionBotConfig(t *testing.T) {
 	}{
 		{
 			name:    "PathEmpty",
-			args:    argTestConfig{flagT: "1", flagD: "2", flagU: ""},
+			args:    argTestConfig{flagT: "1", flagD: "2", flagU: ""}, //nolint:exhaustruct
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name:    "Ok",
-			args:    argTestConfig{flagT: "1", flagD: "2", flagU: "3"},
+			args:    argTestConfig{flagT: "1", flagD: "2", flagU: "3", flagM: "4"}, //nolint:exhaustruct
 			want:    &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathWhiteListAA: "3"},
 			wantErr: false,
 		},
 		{
 			name:    "TelegramTokenEmpty",
-			args:    argTestConfig{flagT: "", flagD: "2", flagU: "3"},
+			args:    argTestConfig{flagT: "", flagD: "2", flagU: "3"}, //nolint:exhaustruct
 			want:    nil,
 			wantErr: true,
 		},
 		{
 			name:    "DiscordTokenEmpty",
-			args:    argTestConfig{flagT: "1", flagD: "", flagU: "3"},
+			args:    argTestConfig{flagT: "1", flagD: "", flagU: "3"}, //nolint:exhaustruct
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "PathTelegramUsersEmpty",
+			args:    argTestConfig{flagT: "1", flagD: "2", flagU: "3"}, //nolint:exhaustruct
 			want:    nil,
 			wantErr: true,
 		},
@@ -97,7 +108,8 @@ func TestLoadLegionBotConfig(t *testing.T) {
 			os.Args = append(os.Args, osArgOrig[0])
 			os.Args = utils.AppendArgs(os.Args, "-"+flagNameTelegramToken, tCase.args.flagT)
 			os.Args = utils.AppendArgs(os.Args, "-"+flagNameDiscordToken, tCase.args.flagD)
-			os.Args = utils.AppendArgs(os.Args, "-"+flagNamePathAllowedTelegramUsersList, tCase.args.flagU)
+			os.Args = utils.AppendArgs(os.Args, "-"+flagNameWhiteListAA, tCase.args.flagU)
+			os.Args = utils.AppendArgs(os.Args, "-"+flagNamePathTelegramUsers, tCase.args.flagM)
 
 			t.Cleanup(func() { os.Args = osArgOrig })
 			got, err := LoadLegionBotConfig()
@@ -113,15 +125,6 @@ func TestLoadLegionBotConfig(t *testing.T) {
 }
 
 func TestConfigEnv(t *testing.T) {
-	type argTestConfig struct {
-		flagT    string
-		flagD    string
-		flagU    string
-		envFlagT string
-		envFlagD string
-		envFlagU string
-	}
-
 	tests := []struct {
 		name string
 		args argTestConfig
@@ -129,13 +132,17 @@ func TestConfigEnv(t *testing.T) {
 	}{
 		{
 			name: "OnlyEnv",
-			args: argTestConfig{flagT: "", flagD: "", flagU: "", envFlagT: "1", envFlagD: "2", envFlagU: "3"},
-			want: &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathWhiteListAA: "3"},
+			args: argTestConfig{ //nolint:exhaustruct
+				flagT: "", flagD: "", flagU: "", envFlagT: "1", envFlagD: "2", envFlagU: "3", envFlagM: "4",
+			},
+			want: &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathWhiteListAA: "3", PathTelegramUsers: "4"},
 		},
 		{
 			name: "Env+CommandLine",
-			args: argTestConfig{flagT: "11", flagD: "22", flagU: "33", envFlagT: "1", envFlagD: "2", envFlagU: "3"},
-			want: &config.LegionBotConfig{TelegramToken: "11", DiscordToken: "22", PathWhiteListAA: "33"},
+			args: argTestConfig{
+				flagT: "11", flagD: "22", flagU: "33", flagM: "44", envFlagT: "1", envFlagD: "2", envFlagU: "3", envFlagM: "4",
+			},
+			want: &config.LegionBotConfig{TelegramToken: "11", DiscordToken: "22", PathWhiteListAA: "33"}, //nolint:exhaustruct
 		},
 	}
 	for _, tCase := range tests {
@@ -143,19 +150,23 @@ func TestConfigEnv(t *testing.T) {
 			envArgsInitConfig(t, "LEGION_BOT_TELEGRAM_TOKEN", tCase.args.envFlagT)
 			envArgsInitConfig(t, "LEGION_BOT_DISCORD_TOKEN", tCase.args.envFlagD)
 			envArgsInitConfig(t, "LEGION_BOT_WHITE_LIST_AA", tCase.args.envFlagU)
+			envArgsInitConfig(t, "LEGION_BOT_TELEGRAM_USERS", tCase.args.envFlagM)
 			osArgOrig := os.Args
 			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 			flag.CommandLine.SetOutput(io.Discard)
 			os.Args = make([]string, 0)
 			os.Args = append(os.Args, osArgOrig[0])
-			if tCase.args.envFlagT != "" {
+			if tCase.args.flagT != "" {
 				os.Args = utils.AppendArgs(os.Args, "-"+flagNameTelegramToken, tCase.args.flagT)
 			}
-			if tCase.args.envFlagD != "" {
+			if tCase.args.flagD != "" {
 				os.Args = utils.AppendArgs(os.Args, "-"+flagNameDiscordToken, tCase.args.flagD)
 			}
-			if tCase.args.envFlagU != "" {
-				os.Args = utils.AppendArgs(os.Args, "-"+flagNamePathAllowedTelegramUsersList, tCase.args.flagU)
+			if tCase.args.flagU != "" {
+				os.Args = utils.AppendArgs(os.Args, "-"+flagNameWhiteListAA, tCase.args.flagU)
+			}
+			if tCase.args.flagM != "" {
+				os.Args = utils.AppendArgs(os.Args, "-"+flagNamePathTelegramUsers, tCase.args.flagM)
 			}
 
 			t.Cleanup(func() { os.Args = osArgOrig })

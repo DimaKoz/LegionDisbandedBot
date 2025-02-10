@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	flagNameTelegramToken                = "t"
-	flagNameDiscordToken                 = "d"
-	flagNamePathAllowedTelegramUsersList = "u"
+	flagNameTelegramToken     = "t"
+	flagNameDiscordToken      = "d"
+	flagNameWhiteListAA       = "u"
+	flagNamePathTelegramUsers = "m"
 )
 
 var (
@@ -20,8 +21,10 @@ var (
 		"or set 'LEGION_BOT_TELEGRAM_TOKEN' environment variable")
 	errNoPassedDiscordToken = errors.New("you must pass a discord token to '-d' flag " +
 		"or set 'LEGION_BOT_DISCORD_TOKEN' environment variable")
-	errNoPassedWhiteListAA = errors.New("you must pass telegram users list to '-u' flag " +
+	errNoPassedWhiteListAA = errors.New("you must pass white list of users to '-u' flag " +
 		"or set 'LEGION_BOT_WHITE_LIST_AA' environment variable")
+	errNoPassedPathTelegramUsers = errors.New("you must pass cached telegram users list to '-m' flag " +
+		"or set 'LEGION_BOT_TELEGRAM_USERS' environment variable")
 )
 
 // LoadLegionBotConfig returns *LegionBotConfig.
@@ -52,15 +55,20 @@ func LoadLegionBotConfig() (*config.LegionBotConfig, error) {
 		return nil, errNoPassedWhiteListAA
 	}
 
+	if cfg.PathTelegramUsers == "" {
+		return nil, errNoPassedPathTelegramUsers
+	}
+
 	return cfg, nil
 }
 
 func processLegionBotFlags(cfg *config.LegionBotConfig) {
 	flag.CommandLine.ErrorHandling()
-	var flagT, flagD, flagU string
+	var flagT, flagD, flagU, flagM string
 	addChecksStringFlag(flagNameTelegramToken, &flagT)
 	addChecksStringFlag(flagNameDiscordToken, &flagD)
-	addChecksStringFlag(flagNamePathAllowedTelegramUsersList, &flagU)
+	addChecksStringFlag(flagNameWhiteListAA, &flagU)
+	addChecksStringFlag(flagNamePathTelegramUsers, &flagM)
 	flag.Parse()
 
 	if flagT != "" {
@@ -71,6 +79,9 @@ func processLegionBotFlags(cfg *config.LegionBotConfig) {
 	}
 	if flagU != "" {
 		cfg.PathWhiteListAA = flagU
+	}
+	if flagM != "" {
+		cfg.PathTelegramUsers = flagM
 	}
 }
 
