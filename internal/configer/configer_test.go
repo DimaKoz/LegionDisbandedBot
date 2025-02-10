@@ -72,7 +72,7 @@ func TestLoadLegionBotConfig(t *testing.T) {
 		{
 			name:    "Ok",
 			args:    argTestConfig{flagT: "1", flagD: "2", flagU: "3"},
-			want:    &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathAllowedTelegramUsersList: "3"},
+			want:    &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathWhiteListAA: "3"},
 			wantErr: false,
 		},
 		{
@@ -130,19 +130,19 @@ func TestConfigEnv(t *testing.T) {
 		{
 			name: "OnlyEnv",
 			args: argTestConfig{flagT: "", flagD: "", flagU: "", envFlagT: "1", envFlagD: "2", envFlagU: "3"},
-			want: &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathAllowedTelegramUsersList: "3"},
+			want: &config.LegionBotConfig{TelegramToken: "1", DiscordToken: "2", PathWhiteListAA: "3"},
 		},
 		{
 			name: "Env+CommandLine",
 			args: argTestConfig{flagT: "11", flagD: "22", flagU: "33", envFlagT: "1", envFlagD: "2", envFlagU: "3"},
-			want: &config.LegionBotConfig{TelegramToken: "11", DiscordToken: "22", PathAllowedTelegramUsersList: "33"},
+			want: &config.LegionBotConfig{TelegramToken: "11", DiscordToken: "22", PathWhiteListAA: "33"},
 		},
 	}
 	for _, tCase := range tests {
 		t.Run(tCase.name, func(t *testing.T) {
 			envArgsInitConfig(t, "LEGION_BOT_TELEGRAM_TOKEN", tCase.args.envFlagT)
 			envArgsInitConfig(t, "LEGION_BOT_DISCORD_TOKEN", tCase.args.envFlagD)
-			envArgsInitConfig(t, "LEGION_BOT_ALLOWED_USERS", tCase.args.envFlagU)
+			envArgsInitConfig(t, "LEGION_BOT_WHITE_LIST_AA", tCase.args.envFlagU)
 			osArgOrig := os.Args
 			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 			flag.CommandLine.SetOutput(io.Discard)

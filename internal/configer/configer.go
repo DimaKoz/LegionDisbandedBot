@@ -20,8 +20,8 @@ var (
 		"or set 'LEGION_BOT_TELEGRAM_TOKEN' environment variable")
 	errNoPassedDiscordToken = errors.New("you must pass a discord token to '-d' flag " +
 		"or set 'LEGION_BOT_DISCORD_TOKEN' environment variable")
-	errNoPassedUsersList = errors.New("you must pass telegram users list to '-u' flag " +
-		"or set 'LEGION_BOT_ALLOWED_USERS' environment variable")
+	errNoPassedWhiteListAA = errors.New("you must pass telegram users list to '-u' flag " +
+		"or set 'LEGION_BOT_WHITE_LIST_AA' environment variable")
 )
 
 // LoadLegionBotConfig returns *LegionBotConfig.
@@ -48,8 +48,8 @@ func LoadLegionBotConfig() (*config.LegionBotConfig, error) {
 		return nil, errNoPassedDiscordToken
 	}
 
-	if cfg.PathAllowedTelegramUsersList == "" {
-		return nil, errNoPassedUsersList
+	if cfg.PathWhiteListAA == "" {
+		return nil, errNoPassedWhiteListAA
 	}
 
 	return cfg, nil
@@ -70,7 +70,7 @@ func processLegionBotFlags(cfg *config.LegionBotConfig) {
 		cfg.DiscordToken = flagD
 	}
 	if flagU != "" {
-		cfg.PathAllowedTelegramUsersList = flagU
+		cfg.PathWhiteListAA = flagU
 	}
 }
 
