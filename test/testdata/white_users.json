@@ -1,0 +1,32 @@
+[
+  {
+    "telegramNickname": "@Nickname1",
+    "gameNickname": "Manager1",
+    "corpTicker": "corpTicker1",
+    "allyTicker": "allyTicker1",
+    "discordGroups": [
+      "group1",
+      "group2"
+    ],
+    "isSender": true
+  },
+  {
+    "telegramNickname": "@Nickname2",
+    "gameNickname": "Octopus",
+    "corpTicker": "corpTicker2",
+    "allyTicker": "allyTicker2",
+    "discordGroups": [
+      "group2",
+      "group3"
+    ],
+    "isSender": false
+  },
+  {
+    "telegramNickname": "@Nickname3",
+    "gameNickname": "lopata",
+    "corpTicker": "corpTicker2",
+    "allyTicker": "allyTicker2",
+    "discordGroups": [],
+    "isSender": false
+  }
+]
