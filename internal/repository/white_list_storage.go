@@ -27,15 +27,15 @@ func AddWhiteListUser(key string, user *user.WhiteListUser) {
 
 		return
 	}
-	addHsImpl(key, *user)
+	addWhiteListUserImpl(key, *user)
 }
 
-func addHsImpl(key string, hs user.WhiteListUser) {
-	wlStorage.storage[key] = hs
+func addWhiteListUserImpl(key string, user user.WhiteListUser) {
+	wlStorage.storage[key] = user
 }
 
-// GetWhitListUser returns a *user.WhiteListUser if found or error otherwise.
-func GetWhitListUser(key string) (*user.WhiteListUser, error) {
+// GetWhiteListUser returns a *user.WhiteListUser if found or error otherwise.
+func GetWhiteListUser(key string) (*user.WhiteListUser, error) {
 	wlStorageSync.Lock()
 	defer wlStorageSync.Unlock()
 
