@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAddGetHs(t *testing.T) {
+func TestAddGetWhiteListUser(t *testing.T) {
 	type args struct {
 		key    string
 		wlUser *user.WhiteListUser
