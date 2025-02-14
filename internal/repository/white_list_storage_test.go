@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/DimaKoz/LegionDisbandedBot/internal/model/user"
+	"github.com/DimaKoz/LegionDisbandedBot/internal/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -42,6 +43,51 @@ func TestAddGetWhiteListUser(t *testing.T) {
 			require.NoError(t, err)
 			assert.NotNil(t, got)
 			assert.Equal(t, *tUnit.args.wlUser, *got)
+		})
+	}
+}
+
+func TestLoadWhiteListUser(t *testing.T) {
+	type args struct {
+		filepath string
+	}
+	wdir := testutils.GetWD()
+	tests := []struct {
+		name      string
+		args      args
+		isWantErr bool
+	}{
+		{
+			name: "empty path",
+			args: args{
+				filepath: "",
+			},
+			isWantErr: true,
+		},
+		{
+			name: "ok",
+			args: args{
+				filepath: wdir + "/test/testdata/white_users.json",
+			},
+			isWantErr: false,
+		},
+	}
+	for _, tCase := range tests {
+		tUnit := tCase
+		t.Run(tUnit.name, func(t *testing.T) {
+			wlStorageOrig := wlStorage
+			wlStorage = WhiteListStorage{
+				storage: make(map[string]user.WhiteListUser),
+			}
+			t.Cleanup(func() {
+				wlStorage = wlStorageOrig
+			})
+			err := LoadWhiteListUser(tUnit.args.filepath)
+			if tCase.isWantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
 		})
 	}
 }

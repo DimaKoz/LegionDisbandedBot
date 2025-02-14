@@ -51,8 +51,7 @@ func GetWhiteListUser(key string) (*user.WhiteListUser, error) {
 	return nil, repositoryError(errNotFoundWhiteListUser, key)
 }
 
-func Load(filepath string) error {
-
+func LoadWhiteListUser(filepath string) error {
 	file, err := os.Open(filepath)
 	if err != nil {
 		return fmt.Errorf("can't read '%s' file with error: %w", filepath, err)
