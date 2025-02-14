@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+var errNoSavedData = errors.New("failed to parse json with error: no data")
+
 // errNotFoundWhiteListUser an error of WhiteListStorage repository.
 var errNotFoundWhiteListUser = errors.New("couldn't find the user in the white list")
 

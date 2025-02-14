@@ -1,9 +1,14 @@
 package repository
 
 import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/DimaKoz/LegionDisbandedBot/internal/model/user"
+	"go.uber.org/zap"
 )
 
 var (
@@ -44,4 +49,40 @@ func GetWhiteListUser(key string) (*user.WhiteListUser, error) {
 	}
 
 	return nil, repositoryError(errNotFoundWhiteListUser, key)
+}
+
+func Load(filepath string) error {
+
+	file, err := os.Open(filepath)
+	if err != nil {
+		return fmt.Errorf("can't read '%s' file with error: %w", filepath, err)
+	}
+	defer func(file *os.File) {
+		err = file.Close()
+		if err != nil {
+			zap.S().Warnf("WhiteListStorage: can't close the file: %s with err: %s \n", filepath, err)
+		}
+	}(file)
+	var wlUsers []user.WhiteListUser
+
+	const bufferSize = 128
+	wlUserReader := bufio.NewReaderSize(file, bufferSize)
+	err = json.NewDecoder(wlUserReader).Decode(&wlUsers)
+	if err != nil {
+		return fmt.Errorf("failed to parse json with error: %w", err)
+	}
+
+	if len(wlUsers) == 0 {
+		return errNoSavedData
+	}
+
+	wlStorageSync.Lock()
+	defer wlStorageSync.Unlock()
+	for _, v := range wlUsers {
+		wlStorage.storage[v.TelegramNickname] = v
+	}
+
+	zap.S().Infof("repository: loaded: %d \n", len(wlUsers))
+
+	return nil
 }
