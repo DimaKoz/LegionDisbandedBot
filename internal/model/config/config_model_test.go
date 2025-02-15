@@ -11,3 +11,16 @@ func TestNewEmptyLegionBotConfig(t *testing.T) {
 	got := NewEmptyLegionBotConfig()
 	assert.Equal(t, want, *got)
 }
+
+func TestLegionBotConfigString(t *testing.T) {
+	want := "LegionBotConfig {TelegramToken:1, DiscordToken:2, PathWhiteListAA:3, PathTelegramUsers:4}"
+	config := LegionBotConfig{
+		TelegramToken:     "1",
+		DiscordToken:      "2",
+		PathWhiteListAA:   "3",
+		PathTelegramUsers: "4",
+	}
+	got := config.String()
+
+	assert.Equal(t, want, got)
+}

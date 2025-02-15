@@ -1,5 +1,9 @@
 package config
 
+import (
+	"strings"
+)
+
 // LegionBotConfig represents a passed config while the bot started.
 type LegionBotConfig struct {
 	TelegramToken string `env:"LEGION_BOT_TELEGRAM_TOKEN"` // flag "-t"
@@ -17,4 +21,20 @@ func NewEmptyLegionBotConfig() *LegionBotConfig {
 		PathWhiteListAA:   "",
 		PathTelegramUsers: "",
 	}
+}
+
+func (n LegionBotConfig) String() string {
+	var strBld strings.Builder
+	strBld.WriteString("LegionBotConfig {")
+	strBld.WriteString("TelegramToken:")
+	strBld.WriteString(n.TelegramToken)
+	strBld.WriteString(", DiscordToken:")
+	strBld.WriteString(n.DiscordToken)
+	strBld.WriteString(", PathWhiteListAA:")
+	strBld.WriteString(n.PathWhiteListAA)
+	strBld.WriteString(", PathTelegramUsers:")
+	strBld.WriteString(n.PathTelegramUsers)
+	strBld.WriteString("}")
+
+	return strBld.String()
 }
