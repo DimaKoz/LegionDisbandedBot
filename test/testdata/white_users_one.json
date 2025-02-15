@@ -1,0 +1,13 @@
+[
+  {
+    "telegramNickname": "@Nickname1",
+    "gameNickname": "Manager1",
+    "corpTicker": "corpTicker1",
+    "allyTicker": "allyTicker1",
+    "discordGroups": [
+      "group1",
+      "group2"
+    ],
+    "isSender": true
+  }
+]

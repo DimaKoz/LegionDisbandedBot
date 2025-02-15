@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap/zaptest/observer"
 )
 
-func TestMonitorFinished(t *testing.T) {
+func TestLegionBotFinished(t *testing.T) {
 	want := "exiting"
 
 	logger, logs := setupLogsCapture(zapcore.DebugLevel)

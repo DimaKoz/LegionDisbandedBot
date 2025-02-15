@@ -81,7 +81,7 @@ func LoadWhiteListUser(filepath string) error {
 		wlStorage.storage[v.TelegramNickname] = v
 	}
 
-	zap.S().Infof("repository: loaded: %d \n", len(wlUsers))
+	zap.S().Infof("WhiteListStorage repository: loaded: %d \n", len(wlUsers))
 
 	return nil
 }
