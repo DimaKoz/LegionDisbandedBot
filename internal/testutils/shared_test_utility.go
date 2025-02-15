@@ -41,3 +41,11 @@ func EnvArgsInitConfig(t *testing.T, key string, value string) {
 		t.Cleanup(func() { _ = os.Setenv(key, origValue) })
 	}
 }
+
+func EnvArgsUnset(t *testing.T, key string) {
+	t.Helper()
+	origValue := os.Getenv(key)
+	err := os.Unsetenv(key)
+	assert.NoError(t, err)
+	t.Cleanup(func() { _ = os.Setenv(key, origValue) })
+}
