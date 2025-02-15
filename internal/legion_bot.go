@@ -2,6 +2,7 @@ package internal
 
 import (
 	"github.com/DimaKoz/LegionDisbandedBot/internal/configer"
+	"github.com/DimaKoz/LegionDisbandedBot/internal/repository"
 	"go.uber.org/zap"
 )
 
@@ -17,6 +18,13 @@ func StartLegionBot(logger *zap.Logger) {
 		return
 	}
 	zap.S().Infoln("config:", config)
+
+	if err = repository.LoadWhiteListUser(config.PathWhiteListAA); err != nil {
+		zap.S().Warnln("LoadWhiteListUser() failed by error:\n", err)
+
+		return
+	}
+
 	zap.S().Infoln("exiting")
 }
 
