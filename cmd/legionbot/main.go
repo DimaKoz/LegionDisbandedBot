@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/DimaKoz/LegionDisbandedBot/internal"
@@ -9,11 +8,6 @@ import (
 )
 
 func main() {
-	s := "gopher"
-
-	// permit
-	fmt.Printf("Hello and welcome, %s!\n", s) //nolint:forbidigo
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatalf("can't start by %v", err)

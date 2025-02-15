@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/DimaKoz/LegionDisbandedBot/internal/model/config"
+	"github.com/DimaKoz/LegionDisbandedBot/internal/testutils"
 	"github.com/DimaKoz/LegionDisbandedBot/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -147,10 +148,10 @@ func TestConfigEnv(t *testing.T) {
 	}
 	for _, tCase := range tests {
 		t.Run(tCase.name, func(t *testing.T) {
-			envArgsInitConfig(t, "LEGION_BOT_TELEGRAM_TOKEN", tCase.args.envFlagT)
-			envArgsInitConfig(t, "LEGION_BOT_DISCORD_TOKEN", tCase.args.envFlagD)
-			envArgsInitConfig(t, "LEGION_BOT_WHITE_LIST_AA", tCase.args.envFlagU)
-			envArgsInitConfig(t, "LEGION_BOT_TELEGRAM_USERS", tCase.args.envFlagM)
+			testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramToken, tCase.args.envFlagT)
+			testutils.EnvArgsInitConfig(t, testutils.LegionBotDiscordToken, tCase.args.envFlagD)
+			testutils.EnvArgsInitConfig(t, testutils.LegionBotWhiteListAa, tCase.args.envFlagU)
+			testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramUsers, tCase.args.envFlagM)
 			osArgOrig := os.Args
 			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
 			flag.CommandLine.SetOutput(io.Discard)
@@ -175,15 +176,5 @@ func TestConfigEnv(t *testing.T) {
 			require.NoErrorf(t, err, "Configs - got error: %v", err)
 			assert.NotNil(t, got)
 		})
-	}
-}
-
-func envArgsInitConfig(t *testing.T, key string, value string) {
-	t.Helper()
-	if value != "" {
-		origValue := os.Getenv(key)
-		err := os.Setenv(key, value)
-		assert.NoError(t, err)
-		t.Cleanup(func() { _ = os.Setenv(key, origValue) })
 	}
 }
