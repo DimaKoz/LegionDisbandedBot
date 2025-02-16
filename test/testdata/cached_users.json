@@ -1,0 +1,16 @@
+[
+  {
+    "id": 123,
+    "nickname": "@Nickname1",
+    "isBot": true,
+    "isBanned": true,
+    "firstName": "FirstName1",
+    "lastName": "LastName1"
+  },
+  {
+    "id": 2,
+    "nickname": "@Nickname2",
+    "gameNickname": "lopata",
+    "isBot": false
+  }
+]
