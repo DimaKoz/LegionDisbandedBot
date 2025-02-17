@@ -25,6 +25,12 @@ func StartLegionBot(logger *zap.Logger) {
 		return
 	}
 
+	if err = repository.LoadCachedTelegramUser(config.PathTelegramUsers); err != nil {
+		zap.S().Warnln("LoadCachedTelegramUser() failed by error:\n", err)
+
+		return
+	}
+
 	zap.S().Infoln("exiting")
 }
 

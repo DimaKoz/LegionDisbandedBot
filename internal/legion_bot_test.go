@@ -24,7 +24,7 @@ func TestLegionBotFinishedOk(t *testing.T) {
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramToken, "1")
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotDiscordToken, "2")
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotWhiteListAa, testutils.GetWD()+"/test/testdata/white_users.json")
-	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramUsers, "4")
+	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramUsers, testutils.GetWD()+"/test/testdata/cached_users.json")
 
 	StartLegionBot(logger)
 	assert.NotEmpty(t, logs, "No logs")
@@ -44,6 +44,26 @@ func TestLegionBotFinishedByWhiteListUsersRepoError(t *testing.T) {
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramToken, "1")
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotDiscordToken, "2")
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotWhiteListAa, testutils.GetWD()+"/test/testdata/white_users_bad.json")
+	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramUsers, "4")
+
+	StartLegionBot(logger)
+	assert.NotEmpty(t, logs, "No logs")
+
+	entry := logs.All()[len(logs.All())-1]
+	assert.Containsf(t, entry.Message, want, "Invalid log entry %v", entry)
+}
+
+func TestLegionBotFinishedByTelegramUserStorageRepoError(t *testing.T) {
+	want := "LoadCachedTelegramUser() failed by error:"
+
+	logger, logs := setupLogsCapture(zapcore.DebugLevel)
+	prevL := zap.L()
+	defer zap.ReplaceGlobals(prevL)
+	zap.ReplaceGlobals(logger)
+
+	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramToken, "1")
+	testutils.EnvArgsInitConfig(t, testutils.LegionBotDiscordToken, "2")
+	testutils.EnvArgsInitConfig(t, testutils.LegionBotWhiteListAa, testutils.GetWD()+"/test/testdata/white_users.json")
 	testutils.EnvArgsInitConfig(t, testutils.LegionBotTelegramUsers, "4")
 
 	StartLegionBot(logger)
@@ -79,7 +99,7 @@ func TestLegionBotFinishedByConfigErrors(t *testing.T) {
 	assert.Containsf(t, entry.Message, want, "Invalid log entry %v", entry)
 }
 
-func setupLogsCapture(enab zapcore.LevelEnabler) (*zap.Logger, *observer.ObservedLogs) {
+func setupLogsCapture(enab zapcore.LevelEnabler) (*zap.Logger, *observer.ObservedLogs) { //nolint:unparam
 	core, logs := observer.New(enab)
 
 	return zap.New(core), logs
