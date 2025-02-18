@@ -69,10 +69,6 @@ func LoadCachedTelegramUser(filepath string) error {
 		return fmt.Errorf("TelegramUserStorage: failed to parse json with error: %w", err)
 	}
 
-	if len(tgUsers) == 0 {
-		return errNoSavedData
-	}
-
 	tgUserStorageSync.Lock()
 	defer tgUserStorageSync.Unlock()
 	for _, v := range tgUsers {

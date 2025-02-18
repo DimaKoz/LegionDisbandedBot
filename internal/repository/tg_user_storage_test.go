@@ -84,12 +84,6 @@ func TestLoadCachedTelegramUser(t *testing.T) {
 				filepath: wdir + "/test/testdata/white_users_bad.json",
 			}, wantTelegramUser: nil, isWantErr: true, expectedNumbers: 0,
 		},
-		{
-			name: "no tg users",
-			args: args{
-				filepath: wdir + "/test/testdata/white_users_zero.json",
-			}, wantTelegramUser: nil, isWantErr: true, expectedNumbers: 0,
-		},
 	}
 	for _, tCase := range tests {
 		tUnit := tCase
