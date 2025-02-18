@@ -79,3 +79,36 @@ func LoadCachedTelegramUser(filepath string) error {
 
 	return nil
 }
+
+func getCachedTelegramUsers() []user.CachedTelegramUser {
+	result := make([]user.CachedTelegramUser, 0)
+
+	tgUserStorageSync.Lock()
+	defer tgUserStorageSync.Unlock()
+
+	for _, v := range tgUserStorage.storage {
+		result = append(result, v.Clone())
+	}
+
+	return result
+}
+
+func SaveCachedTelegramUsers(filepath string) error {
+	tgUsers := getCachedTelegramUsers()
+
+	var (
+		savingJSON []byte
+		err        error
+	)
+	if savingJSON, err = json.Marshal(tgUsers); err != nil {
+		return fmt.Errorf("can't marshal json with error: %w", err)
+	}
+	var perm os.FileMode = 0o666
+	if err = os.WriteFile(filepath, savingJSON, perm); err != nil {
+		return fmt.Errorf("can't write '%s' file with error: %w", filepath, err)
+	}
+
+	zap.S().Infof("'TelegramUserStorage' repository: saved: %d \n", len(tgUsers))
+
+	return nil
+}
