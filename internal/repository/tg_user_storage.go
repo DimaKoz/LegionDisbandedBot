@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"sync"
 
 	"github.com/DimaKoz/LegionDisbandedBot/internal/model/user"
@@ -89,6 +90,9 @@ func getCachedTelegramUsers() []user.CachedTelegramUser {
 	for _, v := range tgUserStorage.storage {
 		result = append(result, v.Clone())
 	}
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].ID < result[j].ID
+	})
 
 	return result
 }
